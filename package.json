@@ -1,6 +1,7 @@
 {
   "name": "hinge-profile-enhancer",
   "version": "1.0.0",
+  "homepage": "https://surequinn.github.io/standoutly",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
