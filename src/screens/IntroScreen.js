@@ -49,19 +49,57 @@ function GradientText({ style, children, colors }) {
   );
 }
 
-function TypingText({ text, speed = 40, style }) {
+function TypingText({ text, speed = 80, pause = 1200, style }) {
   const [displayed, setDisplayed] = useState("");
+  const [typing, setTyping] = useState(true);
 
   useEffect(() => {
-    setDisplayed("");
     let i = 0;
-    const interval = setInterval(() => {
-      setDisplayed((prev) => prev + text[i]);
-      i++;
-      if (i >= text.length) clearInterval(interval);
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
+    let interval;
+    let timeout;
+
+    const type = () => {
+      interval = setInterval(() => {
+        if (i < text.length) {
+          setDisplayed((prev) => prev + text[i]);
+          i++;
+        } else {
+          clearInterval(interval);
+          timeout = setTimeout(() => {
+            setTyping(false);
+          }, pause);
+        }
+      }, speed);
+    };
+
+    const erase = () => {
+      interval = setInterval(() => {
+        if (i > 0) {
+          setDisplayed((prev) => prev.slice(0, -1));
+          i--;
+        } else {
+          clearInterval(interval);
+          timeout = setTimeout(() => {
+            setTyping(true);
+          }, pause);
+        }
+      }, speed / 2);
+    };
+
+    if (typing) {
+      setDisplayed("");
+      i = 0;
+      type();
+    } else {
+      i = text.length;
+      erase();
+    }
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [typing, text, speed, pause]);
 
   return <Text style={style}>{displayed}</Text>;
 }
@@ -146,6 +184,7 @@ export default function IntroScreen({ navigation }) {
           <Image source={aiLogo} style={styles.footerLogo} />
           <TypingText
             text={"Describe yourself in a few words,\nWe'll do the rest."}
+            speed={80}
             style={styles.instructionText}
           />
         </View>
