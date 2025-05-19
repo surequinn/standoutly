@@ -1,6 +1,6 @@
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -47,6 +47,23 @@ function GradientText({ style, children, colors }) {
       )}
     </View>
   );
+}
+
+function TypingText({ text, speed = 40, style }) {
+  const [displayed, setDisplayed] = useState("");
+
+  useEffect(() => {
+    setDisplayed("");
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayed((prev) => prev + text[i]);
+      i++;
+      if (i >= text.length) clearInterval(interval);
+    }, speed);
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return <Text style={style}>{displayed}</Text>;
 }
 
 export default function IntroScreen({ navigation }) {
@@ -127,9 +144,10 @@ export default function IntroScreen({ navigation }) {
         {/* Footer */}
         <View style={styles.footerRow}>
           <Image source={aiLogo} style={styles.footerLogo} />
-          <Text style={styles.instructionText}>
-            Describe yourself in a few words,{"\n"}We'll do the rest.
-          </Text>
+          <TypingText
+            text={"Describe yourself in a few words,\nWe'll do the rest."}
+            style={styles.instructionText}
+          />
         </View>
       </SafeAreaView>
     </LinearGradient>
